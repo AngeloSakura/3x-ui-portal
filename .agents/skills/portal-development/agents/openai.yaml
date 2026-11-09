@@ -1,0 +1,4 @@
+interface:
+  display_name: "3x-ui 用户端开发"
+  short_description: "独立用户端的项目约束、技能选择、面板对接与自查工作入口"
+  default_prompt: "使用 $portal-development 完成当前用户端任务，先读取项目约束并核实面板对接契约。"

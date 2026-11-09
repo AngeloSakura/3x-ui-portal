@@ -1,0 +1,21 @@
+# 替换域名和证书路径。与 PORTAL_ORIGIN 保持相同协议、主机与端口。
+server {
+    listen 443 ssl;
+    server_name portal.example.com;
+    ssl_certificate /etc/letsencrypt/live/portal.example.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/portal.example.com/privkey.pem;
+    ssl_protocols TLSv1.2 TLSv1.3;
+    client_max_body_size 16k;
+
+    # 路径包含秘密入口，不记录常规访问日志；故障日志仍应限制访问权限。
+    access_log off;
+    error_log /var/log/nginx/portal-error.log crit;
+
+    location / {
+        proxy_pass http://127.0.0.1:8090;
+        proxy_http_version 1.1;
+        proxy_set_header Host $http_host;
+        proxy_read_timeout 70s;
+        proxy_send_timeout 70s;
+    }
+}

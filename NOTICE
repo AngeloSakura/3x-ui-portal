@@ -1,0 +1,9 @@
+3x-ui Portal
+Copyright (c) 2026 AngeloSakura
+Author: https://github.com/AngeloSakura
+License: PolyForm Noncommercial 1.0.0
+
+This independent project integrates with 3x-ui through its HTTP API.
+It is not an official 3x-ui component and does not include the 3x-ui server.
+Dependencies retain their respective licenses. The project license does not
+replace any notices or license obligations of its dependencies.

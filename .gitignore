@@ -1,0 +1,15 @@
+/data/
+/secrets/
+/portal
+/portal.exe
+/.env
+/frontend/node_modules/
+/frontend/dist/
+*.db
+*.db-shm
+*.db-wal
+/dist/
+/.local/
+/test-results/
+*.pem
+*.key

@@ -1,0 +1,30 @@
+[Unit]
+Description=Independent 3x-ui user portal
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=portal-svc
+Group=portal-svc
+EnvironmentFile=/etc/3x-ui-portal/portal.env
+WorkingDirectory=/opt/3x-ui-portal
+ExecStart=/opt/3x-ui-portal/portal serve
+Restart=on-failure
+RestartSec=5
+UMask=0077
+NoNewPrivileges=true
+AmbientCapabilities=CAP_NET_BIND_SERVICE
+CapabilityBoundingSet=CAP_NET_BIND_SERVICE
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/3x-ui-portal
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+
+[Install]
+WantedBy=multi-user.target

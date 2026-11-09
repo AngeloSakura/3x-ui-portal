@@ -1,0 +1,19 @@
+#!/sbin/openrc-run
+description="Independent 3x-ui user portal"
+supervisor="supervise-daemon"
+command="/opt/3x-ui-portal/portal"
+command_args="serve"
+command_user="portal-svc:portal-svc"
+directory="/opt/3x-ui-portal"
+pidfile="/run/3x-ui-portal.pid"
+respawn_delay=5
+respawn_max=0
+output_log="/var/log/3x-ui-portal/service.log"
+error_log="/var/log/3x-ui-portal/service.log"
+depend() { need net; }
+start_pre() {
+  checkpath --directory --owner portal-svc:portal-svc --mode 0700 /var/log/3x-ui-portal
+  set -a
+  . /etc/3x-ui-portal/portal.env
+  set +a
+}
