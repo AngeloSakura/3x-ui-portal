@@ -6,7 +6,7 @@
 
 ## 功能
 
-- 安装时自设登录后缀、管理员账号密码和 3x-ui API Token，无默认密码。
+- 安装时自设登录后缀、管理员账号密码和 3x-ui API Token，无默认密码。后缀支持 1–64 位；密码按 3x-ui 非空规则，不强制复杂度，最长 72 个 UTF-8 字节。
 - 面板可使用 HTTP 或 HTTPS；用户端公开访问要求 HTTPS。
 - 管理员绑定已有客户端并发出一次性邀请，用户首次无需密码，进入后必须设置本站密码。
 - 到期倒计时、流量、账号状态，每 15 秒同步；联系站长、修改密码。
@@ -41,7 +41,7 @@ sudo bash install-portal.sh https://portal.example.com:8443 cloudflare
 
 ## 当前验证状态
 
-[v0.1.1](https://github.com/AngeloSakura/3x-ui-portal/releases/tag/v0.1.1) 已通过 GitHub Actions 构建，提供 Linux amd64 / arm64 包和 SHA-256 校验文件。已在低内存 Alpine / OpenRC NAT 环境从 GitHub 安装，验证公网 HTTPS 页面、手机布局、主题保持、服务重启及证书状态恢复。本地模拟完成安装、邀请、强制设密码、登录、订阅中转和重置保护测试。
+[v0.1.2](https://github.com/AngeloSakura/3x-ui-portal/releases/tag/v0.1.2) 已通过 GitHub Actions 构建，提供 Linux amd64 / arm64 包和 SHA-256 校验文件。已在低内存 Alpine / OpenRC NAT 环境从 GitHub 安装，验证公网 HTTPS 页面、手机布局、主题保持、服务重启及证书状态恢复。本地模拟完成安装、邀请、强制设密码、登录、订阅中转和重置保护测试。
 
 NAT 使用自签测试证书，尚未验证真实 CA 签发与目标 3x-ui 实际联调；域名测试待后续进行。详见[验证记录](docs/验证记录.md)。
 
