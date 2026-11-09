@@ -66,6 +66,8 @@ func (a *App) admin(c *gin.Context, actor store.User, route string) {
 		a.users(c)
 	case route == "users" && c.Request.Method == "POST":
 		a.createUser(c, actor)
+	case route == "invitations" && c.Request.Method == "POST":
+		a.createUser(c, actor)
 	case route == "user-state" && c.Request.Method == "POST":
 		a.userState(c, actor)
 	case route == "invite" && c.Request.Method == "POST":
@@ -130,8 +132,12 @@ func (a *App) createUser(c *gin.Context, actor store.User) {
 		return
 	}
 	in.Username = strings.TrimSpace(in.Username)
-	if !security.ValidUsername(in.Username) || in.ClientID <= 0 {
-		fail(c, 400, "请填写有效账号并选择面板客户端")
+	// 新邀请自动沿用面板名称；保留旧 API 的自定义账号以兼容已有客户端。
+	if in.Username == "" {
+		in.Username = in.Email
+	}
+	if !security.ValidLoginName(in.Username) || in.ClientID <= 0 {
+		fail(c, 400, "请选择客户端；名称需为 1–128 个 UTF-8 字节，不含控制字符、斜杠或首尾空白")
 		return
 	}
 	_, p := a.snapshot()
@@ -157,7 +163,7 @@ func (a *App) createUser(c *gin.Context, actor store.User) {
 	defer tx.Rollback()
 	res, err := tx.Exec("INSERT INTO users(username,password_hash,role,client_id,client_email,created_at) VALUES(?,'','user',?,?,?)", in.Username, in.ClientID, in.Email, time.Now().Unix())
 	if err != nil {
-		fail(c, 409, "账号或客户端已绑定，创建未完成")
+		fail(c, 409, "账号或客户端已有绑定；未激活用户请在列表重发邀请，账号重名请联系站长处理")
 		return
 	}
 	id, err := res.LastInsertId()

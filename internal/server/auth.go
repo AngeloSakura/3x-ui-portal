@@ -32,7 +32,7 @@ func (a *App) login(c *gin.Context) {
 		return
 	}
 	in.Username = strings.TrimSpace(in.Username)
-	if !security.ValidUsername(in.Username) || len(in.Password) > 72 {
+	if !security.ValidLoginName(in.Username) || len(in.Password) > 72 {
 		fail(c, 401, "账号或密码不正确")
 		return
 	}

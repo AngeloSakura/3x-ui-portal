@@ -10,8 +10,11 @@ import (
 	"encoding/hex"
 	"errors"
 	"regexp"
+	"strings"
 	"sync"
 	"time"
+	"unicode"
+	"unicode/utf8"
 
 	"golang.org/x/crypto/bcrypt"
 )
@@ -21,6 +24,13 @@ var usernamePattern = regexp.MustCompile(`^[A-Za-z0-9][A-Za-z0-9_.-]{2,31}$`)
 
 func ValidSuffix(s string) bool   { return suffixPattern.MatchString(s) && s != "sub" }
 func ValidUsername(s string) bool { return usernamePattern.MatchString(s) }
+
+// 用户账号沿用面板客户端标识；管理员安装账号仍采用 ValidUsername。
+func ValidLoginName(s string) bool {
+	return s != "" && len(s) <= 128 && utf8.ValidString(s) && strings.TrimSpace(s) == s &&
+		!strings.ContainsAny(s, "/\\") && s != "." && s != ".." &&
+		strings.IndexFunc(s, unicode.IsControl) == -1
+}
 
 func Password(password string) error {
 	if len(password) == 0 || len(password) > 72 {

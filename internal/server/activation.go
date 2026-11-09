@@ -59,12 +59,12 @@ func (a *App) invite(c *gin.Context, actor store.User) {
 func (a *App) inviteResult(c *gin.Context, token string, expires int64, username string) {
 	site, _ := a.snapshot()
 	// fragment 不会发送到 Web 服务器访问日志，页面读取后立即从地址栏清除。
-	ok(c, gin.H{"activationUrl": a.cfg.Origin + "/" + site.Suffix + "/#activate=" + token, "expiresAt": expires, "username": username})
+	ok(c, gin.H{"invitationCode": token, "activationUrl": a.cfg.Origin + "/" + site.Suffix + "/#activate=" + token, "expiresAt": expires, "username": username})
 }
 
 func (a *App) activate(c *gin.Context) {
-	if !a.limiter.Allow("activate-global", 60, time.Minute) {
-		fail(c, 429, "激活尝试过于频繁")
+	if !a.limiter.Allow("activate-global", 60, time.Minute) || !a.limiter.Allow("activate-ip:"+c.ClientIP(), 20, 15*time.Minute) {
+		fail(c, 429, "邀请码尝试过于频繁，请 15 分钟后重试")
 		return
 	}
 	var in struct {
@@ -74,7 +74,7 @@ func (a *App) activate(c *gin.Context) {
 		return
 	}
 	if len(in.Token) != 43 {
-		fail(c, 401, "激活链接无效或已过期，请联系站长重新签发")
+		fail(c, 401, "邀请码无效、已使用或已过期，请联系站长重新签发")
 		return
 	}
 	token, err := security.Random(32)
@@ -96,7 +96,7 @@ func (a *App) activate(c *gin.Context) {
 	var id int64
 	err = tx.QueryRow("SELECT a.user_id FROM activations a JOIN users u ON u.id=a.user_id WHERE a.token_hash=? AND a.expires_at>? AND u.role='user' AND u.password_hash='' AND u.disabled=0", security.Digest(in.Token), time.Now().Unix()).Scan(&id)
 	if err != nil {
-		fail(c, 401, "激活链接无效或已过期，请联系站长重新签发")
+		fail(c, 401, "邀请码无效、已使用或已过期，请联系站长重新签发")
 		return
 	}
 	res, err := tx.Exec("DELETE FROM activations WHERE user_id=? AND token_hash=?", id, security.Digest(in.Token))
@@ -145,6 +145,16 @@ func (a *App) firstPassword(c *gin.Context, u store.User) {
 		fail(c, 400, err.Error())
 		return
 	}
+	token, err := security.Random(32)
+	if err != nil {
+		fail(c, 500, "无法建立登录会话，请重试")
+		return
+	}
+	csrf, err := security.Random(32)
+	if err != nil {
+		fail(c, 500, "无法建立登录会话，请重试")
+		return
+	}
 	cookie, _ := c.Cookie(sessionCookie)
 	tx, err := a.db.BeginTx(c.Request.Context(), nil)
 	if err != nil {
@@ -168,13 +178,17 @@ func (a *App) firstPassword(c *gin.Context, u store.User) {
 		_, err = tx.Exec("DELETE FROM activations WHERE user_id=?", u.ID)
 	}
 	if err == nil {
+		// 设置密码与会话轮换同一事务完成；旧的受限会话不可继续使用。
+		_, err = tx.Exec("INSERT INTO sessions(token_hash,user_id,csrf,expires_at) VALUES(?,?,?,?)", security.Digest(token), u.ID, csrf, time.Now().Add(12*time.Hour).Unix())
+	}
+	if err == nil {
 		err = tx.Commit()
 	}
 	if err != nil {
 		fail(c, 409, "激活状态已变化，请重新登录或联系站长")
 		return
 	}
-	a.cookie(c, "", -1)
+	a.cookie(c, token, 12*60*60)
 	a.audit(u.ID, "activation-complete", u.ID, "success")
-	ok(c, gin.H{"message": "密码已设置，请使用账号和新密码登录"})
+	ok(c, gin.H{"message": "密码已设置，注册完成"})
 }

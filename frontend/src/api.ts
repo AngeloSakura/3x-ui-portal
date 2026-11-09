@@ -31,4 +31,4 @@ export type Summary = {
   routes: { primary: string; backup: string; reason: string }[];
 };
 export type Settings = { name: string; panelUrl: string; supportUrl: string; allowRotation: boolean; relayOrigins: string };
-export type Invitation = { activationUrl: string; expiresAt: number; username: string };
+export type Invitation = { invitationCode: string; activationUrl: string; expiresAt: number; username: string };
