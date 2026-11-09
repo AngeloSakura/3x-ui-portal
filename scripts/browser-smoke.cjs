@@ -12,6 +12,9 @@ const path = require('node:path');
   try {
     await page.goto(`${origin}/install/${process.env.SMOKE_SETUP_TOKEN}/`);
     await visible(page.getByRole('heading',{name:'建立你的专属入口'}));
+    await page.setViewportSize({width:390,height:844}); await screenshot('setup-mobile');
+    assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'setup page overflows');
+    await page.setViewportSize({width:1440,height:1000});
     await page.locator('#name').fill('Portal 测试站'); await page.locator('#suffix').fill(suffix);
     await page.locator('#username').fill('owner'); await page.locator('#password').fill(password); await page.locator('#confirm').fill(password);
     await screenshot('setup-desktop'); await page.getByRole('button',{name:/继\s*续/ }).click();

@@ -234,4 +234,8 @@ p { line-height: 1.75; }
 .setup-steps .ant-steps-item-active .ant-steps-item-icon { color: var(--ink); background: var(--selected); border-color: var(--accent); }
 .settings-panel { max-width: 680px; }
 .brand svg path { stroke: var(--surface); }
-@media (max-width: 760px) { .appearance-bar { padding-inline: 20px; } .setup-steps .ant-steps-item-content { display: none; } }
+@media (max-width: 760px) {
+  .appearance-bar { padding-inline: 20px; }
+  .setup-steps .ant-steps-item-content, .setup-steps .ant-steps-item-title { display: none; }
+  .setup-steps .ant-steps-item { flex: 1; min-width: 0; }
+}

@@ -10,23 +10,29 @@ from cryptography.x509.oid import NameOID
 root = pathlib.Path(__file__).resolve().parents[1]
 EXPIRY = int((time.time()+30*86400)*1000)
 class Panel(http.server.BaseHTTPRequestHandler):
+    # Keep fixture connections alive; HTTP/1.0 short closes can reset on Windows.
+    protocol_version = 'HTTP/1.1'
     def log_message(self, *args): pass
+    def handle(self):
+        try: super().handle()
+        except (ConnectionResetError, BrokenPipeError): pass  # Fixture client shutdown.
     def do_GET(self):
         expiry = EXPIRY
         record = dict(id=9,email='demo-client',subId='fixture-subscription',enable=True,expiryTime=expiry,totalGB=107374182400)
         detail = dict(client=record,inboundIds=[1])
         path=self.path.split('?')[0]
         if path.startswith('/subscription/'):
-            self.send_response(200);self.send_header('Content-Type','text/plain');self.end_headers();self.wfile.write(b'fixture-subscription-content');return
+            self.send_response(200);self.send_header('Content-Type','text/plain');self.send_header('Content-Length',str(len(b'fixture-subscription-content')));self.end_headers();self.wfile.write(b'fixture-subscription-content');return
         if self.headers.get('Authorization') != 'Bearer fixture-panel-token-for-test-only':
-            self.send_response(401);self.end_headers();return
+            self.send_response(401);self.send_header('Content-Length','0');self.end_headers();return
         if path.endswith('/list/paged'): obj=dict(items=[record],total=1)
         elif path.endswith('/clients/get'): obj=detail
         elif '/clients/get/subId/' in path: obj=[detail]
         elif '/clients/traffic/' in path: obj=dict(email='demo-client',enable=True,up=1073741824,down=5368709120,total=107374182400,expiryTime=expiry)
         elif '/clients/subLinks/' in path: obj=[f'http://127.0.0.1:{self.server.server_port}/subscription/fixture-subscription']
-        else: self.send_response(404);self.end_headers();return
-        self.send_response(200);self.send_header('Content-Type','application/json');self.end_headers();self.wfile.write(json.dumps(dict(success=True,obj=obj)).encode())
+        else: self.send_response(404);self.send_header('Content-Length','0');self.end_headers();return
+        body=json.dumps(dict(success=True,obj=obj)).encode()
+        self.send_response(200);self.send_header('Content-Type','application/json');self.send_header('Content-Length',str(len(body)));self.end_headers();self.wfile.write(body)
 
 def main():
     (root/'.local').mkdir(exist_ok=True)
