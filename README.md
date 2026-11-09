@@ -41,7 +41,7 @@ sudo bash install-portal.sh https://portal.example.com:8443 cloudflare
 
 ## 当前验证状态
 
-[v0.1.2](https://github.com/AngeloSakura/3x-ui-portal/releases/tag/v0.1.2) 已通过 GitHub Actions 构建，提供 Linux amd64 / arm64 包和 SHA-256 校验文件。已在低内存 Alpine / OpenRC NAT 环境从 GitHub 安装并升级至 v0.1.2，验证公网 HTTPS 页面、手机布局、主题保持、服务重启及证书状态恢复。本地模拟完成安装、邀请、强制设密码、登录、订阅中转和重置保护测试。
+[v0.2.0](https://github.com/AngeloSakura/3x-ui-portal/releases/tag/v0.2.0) 已通过 GitHub Actions 构建，提供 Linux amd64 / arm64 包和 SHA-256 校验文件。已在低内存 Alpine / OpenRC NAT 环境从 GitHub 安装并升级至 v0.2.0，验证公网 HTTPS 页面、手机布局、主题保持、服务重启及证书状态恢复。本地模拟完成安装、专属邀请码注册、自动绑定、强制设密码后直接进入首页、后续密码登录、订阅中转和重置保护测试。
 
 NAT 使用自签测试证书，尚未验证真实 CA 签发与目标 3x-ui 实际联调；域名测试待后续进行。详见[验证记录](docs/验证记录.md)。
 
