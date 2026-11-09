@@ -7,7 +7,7 @@ const path = require('node:path');
   const context = await browser.newContext({ ignoreHTTPSErrors: true, viewport: { width: 1440, height: 1000 } });
   const page = await context.newPage(); const errors = []; page.on('pageerror', e => errors.push(e.message));
   const origin = process.env.SMOKE_ORIGIN, suffix = 'fixture-private-entry', password = 'fixture-password-long';
-  const screenshot = async name => { await page.waitForFunction(() => document.querySelectorAll('.ant-message-notice').length === 0); await page.waitForTimeout(300); return page.screenshot({ path: path.join(process.env.SMOKE_OUTPUT, name+'.png'), fullPage: true }); };
+  const screenshot = async name => { await page.waitForFunction(() => document.querySelectorAll('.ant-message-notice').length === 0); await page.evaluate(() => window.scrollTo(0,0)); await page.waitForTimeout(300); return page.screenshot({ path: path.join(process.env.SMOKE_OUTPUT, name+'.png'), fullPage: true }); };
   const visible = async locator => { await locator.waitFor({state:'visible'}); };
   try {
     await page.goto(`${origin}/install/${process.env.SMOKE_SETUP_TOKEN}/`);
@@ -30,7 +30,7 @@ const path = require('node:path');
     // Save config, but never request an external ACME certificate in this fixture.
     await page.getByLabel('证书联系邮箱').fill('admin@example.com');await page.getByRole('checkbox',{name:/我同意/}).check();
     await page.getByRole('button',{name:'保存配置',exact:true}).click();await visible(page.getByText('配置已保存，自动续期会使用新配置',{exact:true}));
-    await screenshot('admin-certificate-desktop');
+    assert.equal(await page.locator('.ant-tag-orange').evaluate(el => getComputedStyle(el).color), 'rgb(173, 78, 0)'); await screenshot('admin-certificate-desktop');
     await page.getByRole('button',{name:'用户管理',exact:true}).click();await page.getByRole('button',{name:/添加用户/}).click();
     await page.getByLabel('查找面板客户端').fill('demo'); await page.getByRole('button',{name:/查\s*找/ }).click();
     await page.getByLabel('绑定客户端').click();await page.getByTitle('demo-client',{exact:true}).click();
@@ -43,7 +43,7 @@ const path = require('node:path');
     await visible(page.getByRole('heading',{name:'订阅概览',exact:true}));await visible(page.getByText('本站中转',{exact:false}).first());
     const summary=await page.evaluate(async()=>await (await fetch('api/summary')).json());assert.equal(summary.routes.length,1);assert.ok(summary.routes[0].primary.startsWith(origin+'/sub/'));assert.ok(summary.routes[0].backup.startsWith(process.env?.SMOKE_PANEL||'http://'));
     const sub=await context.request.get(summary.routes[0].primary);assert.equal(sub.status(),200,await sub.text());assert.equal(await sub.text(),'fixture-subscription-content');
-    await screenshot('dashboard-light-desktop'); await page.getByRole('button',{name:/暗\s*黑/}).click(); await screenshot('dashboard-dark-desktop');await page.setViewportSize({width:390,height:844});await screenshot('dashboard-mobile');assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'dashboard overflows');
+    assert.equal(await page.locator('.ant-tag-green').evaluate(el => getComputedStyle(el).color), 'rgb(35, 120, 4)'); await screenshot('dashboard-light-desktop'); await page.getByRole('button',{name:/暗\s*黑/}).click(); await screenshot('dashboard-dark-desktop');await page.setViewportSize({width:390,height:844});await screenshot('dashboard-mobile');assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'dashboard overflows');
     assert.equal((await context.request.get(origin+'/')).status(),404);assert.equal((await context.request.get(`${origin}/install/${process.env.SMOKE_SETUP_TOKEN}/`)).status(),404);
     assert.deepEqual(errors,[]);console.log('PASS: HTTPS install, HTTP panel, login, certificate settings, invitation, mandatory password, relay, mobile and author links');
   } catch(e) {await screenshot('smoke-failure');throw e;} finally {await browser.close();}

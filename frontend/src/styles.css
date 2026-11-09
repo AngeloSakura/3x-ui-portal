@@ -45,6 +45,9 @@ p { line-height: 1.75; }
 .ant-btn { box-shadow: none; font-weight: 500; }
 .ant-btn-lg { font-size: 14px; }
 .ant-tag { margin-inline-end: 0; padding-inline: 10px; border-radius: 20px; }
+:root[data-theme="light"] .ant-tag.ant-tag-green.ant-tag-filled { color: #237804; }
+:root[data-theme="light"] .ant-tag.ant-tag-orange.ant-tag-filled { color: #ad4e00; }
+:root[data-theme="light"] .ant-tag.ant-tag-gold.ant-tag-filled { color: #874d00; }
 .boot-state { width: min(520px, calc(100% - 48px)); margin: 15vh auto; }
 .boot-state .brand { margin-bottom: 36px; }
 

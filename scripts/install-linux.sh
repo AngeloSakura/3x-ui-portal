@@ -53,7 +53,9 @@ cp -R "$portal_tmp/web/." "$portal_install/web/"
 install -d -m 0700 -o portal-svc -g portal-svc "$portal_data"
 install -d -m 0750 -o portal-svc -g portal-svc "$portal_config" "$portal_config/secrets"
 portal_acme_listen=${PORTAL_ACME_LISTEN:-0.0.0.0:80}
-[[ "$portal_acme_listen" =~ ^[A-Za-z0-9.\[\]:-]+:[0-9]+$ ]] || { echo '验证监听地址格式无效'; exit 1; }
+[[ "$portal_acme_listen" =~ ^(\[[0-9a-fA-F:]+\]|[A-Za-z0-9.-]*):([0-9]{1,5})$ ]] || { echo '验证监听地址格式无效'; exit 1; }
+portal_acme_port=$((10#${BASH_REMATCH[2]}))
+(( portal_acme_port >= 1 && portal_acme_port <= 65535 )) || { echo '验证监听端口无效'; exit 1; }
 cat > "$portal_config/portal.env" <<EOF
 PORTAL_LISTEN=0.0.0.0:$portal_port
 PORTAL_ORIGIN=$portal_origin
