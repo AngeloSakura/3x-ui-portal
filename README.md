@@ -39,6 +39,12 @@ sudo bash install-portal.sh https://portal.example.com:8443 cloudflare
 - [验证记录](docs/验证记录.md)、[参与维护](CONTRIBUTING.md)。
 - [开发约束](AGENTS.md)及[项目必读技能](.agents/skills/portal-development/SKILL.md)。
 
+## 当前验证状态
+
+[v0.1.0](https://github.com/AngeloSakura/3x-ui-portal/releases/tag/v0.1.0) 已通过 GitHub Actions 构建，提供 Linux amd64 / arm64 包和 SHA-256 校验文件。已在低内存 Alpine / OpenRC NAT 环境从 GitHub 安装，验证公网 HTTPS 页面、手机布局、主题保持、服务重启及证书状态恢复。本地模拟完成安装、邀请、强制设密码、登录、订阅中转和重置保护测试。
+
+NAT 使用自签测试证书，尚未验证真实 CA 签发与目标 3x-ui 实际联调；域名测试待后续进行。详见[验证记录](docs/验证记录.md)。
+
 ## 兼容性与许可
 
 对接契约基于 3x-ui 3.11.0 新客户端 API。当前使用 admin API Token，未实现面板用户名密码登录、支付、开放注册、多面板及管理员密码找回界面。模拟测试不替代真实面板与实际订阅客户端验收，正式使用前请用测试用户核实目标版本，尤其是订阅重置。
