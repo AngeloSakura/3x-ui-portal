@@ -6,7 +6,7 @@ const path = require('node:path');
   const browser = await chromium.launch({ headless: true, ...(process.env.SMOKE_BROWSER ? { executablePath: process.env.SMOKE_BROWSER } : {}) });
   const context = await browser.newContext({ ignoreHTTPSErrors: true, viewport: { width: 1440, height: 1000 } });
   const page = await context.newPage(); const errors = []; page.on('pageerror', e => errors.push(e.message));
-  const origin = process.env.SMOKE_ORIGIN, suffix = 'fixture-private-entry', password = 'fixture-password-long';
+  const origin = process.env.SMOKE_ORIGIN, suffix = 'a', password = '123456';
   const screenshot = async name => { await page.waitForFunction(() => document.querySelectorAll('.ant-message-notice').length === 0); await page.evaluate(() => window.scrollTo(0,0)); await page.waitForTimeout(300); return page.screenshot({ path: path.join(process.env.SMOKE_OUTPUT, name+'.png'), fullPage: true }); };
   const visible = async locator => { await locator.waitFor({state:'visible'}); };
   try {

@@ -3,6 +3,8 @@ package security
 import (
 	"bytes"
 	"encoding/base64"
+	"golang.org/x/crypto/bcrypt"
+	"strings"
 	"testing"
 )
 
@@ -36,13 +38,35 @@ func TestVaultRejectsChangedCiphertextAndWrongKey(t *testing.T) {
 	}
 }
 
-func TestEntrySuffixRejectsTraversalAndShortNames(t *testing.T) {
-	for _, s := range []string{"admin", "../../private", "abcdefghijk/secret", "abcdefghijkl?x=1", "abcdefghijkl%2fsecret", "abcdefghijkl\\secret"} {
+func TestEntrySuffixAllowsShortNamesAndRejectsUnsafePaths(t *testing.T) {
+	for _, s := range []string{"", "sub", strings.Repeat("a", 65), "../../private", "abcdefghijk/secret", "abcdefghijkl?x=1", "abcdefghijkl%2fsecret", "abcdefghijkl\\secret"} {
 		if ValidSuffix(s) {
 			t.Errorf("不应接受 %q", s)
 		}
 	}
-	if !ValidSuffix("portal_7Kp-29xQ8m") {
-		t.Fatal("有效后缀被拒绝")
+	for _, s := range []string{"a", "admin", "portal_7Kp-29xQ8m", strings.Repeat("a", 64)} {
+		if !ValidSuffix(s) {
+			t.Errorf("有效后缀被拒绝: %q", s)
+		}
+	}
+}
+
+func TestPasswordMatchesPanelNonemptyBcryptLimit(t *testing.T) {
+	for _, p := range []string{"a", "123456", " admin ", " ", strings.Repeat("密", 24)} {
+		if err := Password(p); err != nil {
+			t.Errorf("valid password rejected: %v", err)
+		}
+	}
+	for _, p := range []string{"", strings.Repeat("a", 73), strings.Repeat("密", 25)} {
+		if Password(p) == nil {
+			t.Error("empty or overlong password accepted")
+		}
+	}
+	hash, err := HashPassword(" a ")
+	if err != nil || bcrypt.CompareHashAndPassword([]byte(hash), []byte(" a ")) != nil {
+		t.Fatal("password did not round trip")
+	}
+	if bcrypt.CompareHashAndPassword([]byte(hash), []byte("a")) == nil {
+		t.Fatal("password whitespace was discarded")
 	}
 }

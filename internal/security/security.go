@@ -10,22 +10,21 @@ import (
 	"encoding/hex"
 	"errors"
 	"regexp"
-	"strings"
 	"sync"
 	"time"
 
 	"golang.org/x/crypto/bcrypt"
 )
 
-var suffixPattern = regexp.MustCompile(`^[A-Za-z0-9_-]{12,64}$`)
+var suffixPattern = regexp.MustCompile(`^[A-Za-z0-9_-]{1,64}$`)
 var usernamePattern = regexp.MustCompile(`^[A-Za-z0-9][A-Za-z0-9_.-]{2,31}$`)
 
-func ValidSuffix(s string) bool   { return suffixPattern.MatchString(s) }
+func ValidSuffix(s string) bool   { return suffixPattern.MatchString(s) && s != "sub" }
 func ValidUsername(s string) bool { return usernamePattern.MatchString(s) }
 
 func Password(password string) error {
-	if len(password) < 12 || len(password) > 72 || strings.TrimSpace(password) != password {
-		return errors.New("密码需为 12–72 字节，首尾不能为空格")
+	if len(password) == 0 || len(password) > 72 {
+		return errors.New("密码不能为空，且不能超过 72 个 UTF-8 字节")
 	}
 	return nil
 }

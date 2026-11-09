@@ -70,12 +70,12 @@ export const Setup = () => {
           <Form form={form} layout="vertical" requiredMark={false} initialValues={{ name: 'Portal' }} onValuesChange={(changed) => { if ('panelUrl' in changed || 'panelToken' in changed) setChecked(false); }}>
             <div hidden={step !== 0}>
               <Form.Item name="name" label="站点名称" rules={[{ required: true, whitespace: true, max: 40, message: '填写 1–40 个字符的站点名称' }]}><Input placeholder="例如：我的用户中心" autoComplete="organization" maxLength={40} /></Form.Item>
-              <Form.Item label="登录路径后缀" extra="至少 12 位，支持字母、数字、下划线和连字符。请妥善保存这个入口。">
-                <div className="suffix-control"><Form.Item name="suffix" noStyle rules={[{ required: true, pattern: /^[A-Za-z0-9_-]{12,64}$/, message: '请设置 12–64 位有效后缀' }]}><Input prefix="/" placeholder="设置专属后缀" autoComplete="off" maxLength={64} /></Form.Item><Button icon={<ReloadOutlined />} onClick={generate}>随机生成</Button></div>
+              <Form.Item label="登录路径后缀" extra="1–64 位，支持字母、数字、下划线和连字符；sub 为订阅接口保留名称。">
+                <div className="suffix-control"><Form.Item name="suffix" noStyle rules={[{ required: true, pattern: /^(?!sub$)[A-Za-z0-9_-]{1,64}$/, message: '请设置 1–64 位有效后缀，不能使用 sub' }]}><Input prefix="/" placeholder="设置专属后缀" autoComplete="off" maxLength={64} /></Form.Item><Button icon={<ReloadOutlined />} onClick={generate}>随机生成</Button></div>
                 <div className="path-preview">登录入口：{location.origin}/{values?.suffix || '你的后缀'}/</div>
               </Form.Item>
               <Form.Item name="username" label="管理员账号" rules={[{ required: true, pattern: /^[A-Za-z0-9][A-Za-z0-9_.-]{2,31}$/, message: '3–32 位字母、数字、点、下划线或连字符' }]}><Input autoComplete="username" placeholder="设置管理员账号" maxLength={32} /></Form.Item>
-              <div className="form-pair"><Form.Item name="password" label="登录密码" rules={[passwordRule]}><Input.Password autoComplete="new-password" placeholder="建议使用随机长密码" /></Form.Item>
+              <div className="form-pair"><Form.Item name="password" label="登录密码" rules={[passwordRule]}><Input.Password autoComplete="new-password" placeholder="输入你的登录密码" /></Form.Item>
                 <Form.Item name="confirm" label="确认密码" dependencies={['password']} rules={[{ required: true, message: '请再次输入密码' }, ({ getFieldValue }) => ({ validator(_, value) { return value === getFieldValue('password') ? Promise.resolve() : Promise.reject(new Error('两次输入的密码不一致')); } })]}><Input.Password autoComplete="new-password" placeholder="再次输入密码" /></Form.Item></div>
             </div>
             <div hidden={step !== 1}>

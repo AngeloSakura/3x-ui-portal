@@ -68,7 +68,7 @@ func (a *App) setup(c *gin.Context) {
 		return
 	}
 	if !security.ValidSuffix(in.Suffix) {
-		fail(c, 400, "登录后缀需为 12–64 位字母、数字、下划线或连字符")
+		fail(c, 400, "登录后缀需为 1–64 位字母、数字、下划线或连字符，不能使用保留名称 sub")
 		return
 	}
 	if !security.ValidUsername(in.Username) {
